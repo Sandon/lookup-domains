@@ -42,26 +42,30 @@ async function check (domainName) {
 
 async function checkOneByOne () {
   let domainName = await readFile('./now', 'utf-8')
-  for (let i = 0; i !== 10000; i++) {
+  for (let i = 0; i !== 1000000000; i++) {
     let res
     try {
       res = await lookUp(`whois ${domainName}.com`)
     } catch (e) {
       console.log(`look up ${domainName}.com failed: ${e}`)
     }
+    console.log(`lookup ${domainName}.com finished!`)
     if (!res) {
+      console.log('no res')
+      // throw new Error(`error: no response`)
     } else if (!res.Registrar && !res.organisation) {
       // todo: available
-      console.log('available now')
+      console.log(`${domainName}.com available now`)
       appendFile('./available', `\n ${domainName}.com`, 'utf-8')
-      break
+      //break
     } else if (res['Registry Expiry Date'] && res['Registry Expiry Date'] < '2018-06-01') {
       // todo: available in future
       console.log(`${domainName}.com available at ${res['Registry Expiry Date']}`)
-      appendFile('./future', `\n ${domainName}.com ${res['Registry Expiry Date']}`, 'utf-8')
+      // appendFile('./future', `\n ${domainName}.com ${res['Registry Expiry Date']}`, 'utf-8')
     } else {
       console.log(`${domainName}.com not available`)
     }
+  
     domainName = increase(domainName)
     await writeFile('./now', domainName, 'utf-8')
   }
